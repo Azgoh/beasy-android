@@ -14,9 +14,9 @@ import retrofit2.http.POST;
 public interface ApiService {
 
     /**
-     *
-     * @Body tells Retrofit to serialize RegisterRequest as JSON and put it in the request body.
-     * Call<String> means the server will respond with a plain String
+     * Sends a registration request to the server.
+     * Returns the raw HTTP response body since backend response
+     * structure is not strictly defined or mapped to a model.
      */
     @POST("api/register")
     Call<ResponseBody> registerUser(@Body RegisterRequest request);
