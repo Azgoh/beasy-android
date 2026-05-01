@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main brand blue (the buttons, title, links) -->
+    <color name="primary_blue">#1A3A8F</color>
+
+    <!-- Page background (light bluish-grey) -->
+    <color name="background_grey">#EEF0F5</color>
+
+    <!-- Pure white (card background, button text) -->
+    <color name="white">#FFFFFF</color>
+
+    <!-- Dark text color -->
+    <color name="text_dark">#1A1A2E</color>
+
+    <!-- Medium grey for subtitles -->
+    <color name="text_grey">#777E90</color>
+
+    <!-- Light grey for input placeholder text -->
+    <color name="hint_grey">#AAAAAA</color>
+
+    <!-- Grey for icons inside input fields -->
+    <color name="icon_grey">#888888</color>
+
+    <!-- Thin divider line between form and login link -->
+    <color name="divider_grey">#E5E7EB</color>
+
+    <!-- Input field background -->
+    <color name="input_bg">#F3F4F8</color>
+
+    <!-- Input field border -->
+    <color name="input_border">#D1D5DB</color>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    circle_blue_bg.xml — A blue circle shape used as the background for the toolbox icon.
+    "shape" drawables let you draw simple geometric shapes without needing image files.
+
+    WHERE: Place this in app/src/main/res/drawable/circle_blue_bg.xml
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Fill the entire oval with the primary blue color -->
+    <solid android:color="@color/primary_blue" />
+
+    <!-- Make it a perfect circle by using the same size for width/height -->
+    <size
+        android:width="72dp"
+        android:height="72dp" />
+</shape>
