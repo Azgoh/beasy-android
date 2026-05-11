@@ -13,6 +13,8 @@ import com.example.beasy.data.AppDatabase;
 import com.example.beasy.data.entity.UserEntity;
 import com.example.beasy.databinding.ActivityLoginBinding;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         // Login button
         binding.btnLogin.setOnClickListener(v -> attemptLogin());
 
-        // "Don't have an account? Register" link
+        // "Don't have an account? "Register" link
         binding.tvRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
             finish();
@@ -55,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         String identifier = binding.etIdentifier.getText().toString().trim(); // username or email
         String password   = binding.etPassword.getText().toString().trim();
 
-        // --- Validation ---
+        //  Validation
         if (identifier.isEmpty()) {
             binding.etIdentifier.setError("Username or email is required");
             binding.etIdentifier.requestFocus();
@@ -74,36 +76,46 @@ public class LoginActivity extends AppCompatActivity {
         executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
 
-            // Try matching by email first, then by username
-            // This lets users log in with either one
-            UserEntity user = db.userDao().findByEmailAndPassword(identifier, password);
+            // User can log in by either username or email
+            UserEntity user = db.userDao().findByIdentifier(identifier);
+
             if (user == null) {
-                user = db.userDao().findByUsernameAndPassword(identifier, password);
+                // No account found with that username/email
+                runOnUiThread(() -> {
+                    binding.etIdentifier.setError("No account found with that username or email");
+                    binding.etIdentifier.requestFocus();
+                    binding.btnLogin.setEnabled(true);
+                    binding.btnLogin.setText("Login");
+                });
+                return;
             }
+
+            if (!BCrypt.checkpw(password, user.password)) {
+                // Account found but wrong password
+                runOnUiThread(() -> {
+                    binding.etPassword.setError("Incorrect password");
+                    binding.etPassword.requestFocus();
+                    binding.btnLogin.setEnabled(true);
+                    binding.btnLogin.setText("Login");
+                });
+                return;
+            }
+
 
             final UserEntity matchedUser = user;
 
             runOnUiThread(() -> {
-                binding.btnLogin.setEnabled(true);
-                binding.btnLogin.setText("Login");
+                SharedPreferences prefs = getSharedPreferences("beasy_prefs", MODE_PRIVATE);
+                prefs.edit()
+                        .putInt("logged_in_user_id", matchedUser.id)
+                        .putString("logged_in_username", matchedUser.username)
+                        .apply();
 
-                if (matchedUser != null) {
-                    // Save logged-in user's id to SharedPreferences
-                    // MainActivity will read this next time the app opens
-                    SharedPreferences prefs = getSharedPreferences("beasy_prefs", MODE_PRIVATE);
-                    prefs.edit()
-                            .putInt("logged_in_user_id", matchedUser.id)
-                            .putString("logged_in_username", matchedUser.username)
-                            .apply();
+                Toast.makeText(this, "Welcome back, " + matchedUser.username + "!", Toast.LENGTH_SHORT).show();
 
-                    Toast.makeText(this, "Welcome back, " + matchedUser.username + "!", Toast.LENGTH_SHORT).show();
-
-                    // TODO: Navigate to HomeActivity once built
-                    // startActivity(new Intent(this, HomeActivity.class));
-                    // finish();
-                } else {
-                    Toast.makeText(this, "❌ Invalid credentials", Toast.LENGTH_SHORT).show();
-                }
+                // TODO: Navigate to HomeActivity once built
+                // startActivity(new Intent(this, HomeActivity.class));
+                // finish();
             });
         });
     }

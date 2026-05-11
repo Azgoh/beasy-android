@@ -13,6 +13,8 @@ import com.example.beasy.data.AppDatabase;
 import com.example.beasy.data.entity.UserEntity;
 import com.example.beasy.databinding.ActivityRegisterBinding;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -123,8 +125,10 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
+                String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
+
                 // All clear — insert the new user
-                UserEntity newUser = new UserEntity(username, email, password);
+                UserEntity newUser = new UserEntity(username, email, hashed);
                 db.userDao().insertUser(newUser);
 
                 // Success — update UI on main thread
