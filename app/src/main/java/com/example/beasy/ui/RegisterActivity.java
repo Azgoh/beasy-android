@@ -1,150 +1,156 @@
 package com.example.beasy.ui;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.beasy.R;
-import com.example.beasy.api.ApiClient;
-import com.example.beasy.api.ApiService;
-import com.example.beasy.model.RegisterRequest;
+import com.example.beasy.data.AppDatabase;
+import com.example.beasy.data.entity.UserEntity;
+import com.example.beasy.databinding.ActivityRegisterBinding;
 
-import org.jetbrains.annotations.NotNull;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RegisterActivity extends AppCompatActivity {
+    private ActivityRegisterBinding binding;
 
-    private EditText etUsername, etEmail, etPassword;
-    private Button btnRegister;
-    private ImageView ivTogglePassword;
     private boolean isPasswordVisible = false;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_register);
+        // ViewBinding: inflate the layout and get a binding object
+        binding = ActivityRegisterBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        etUsername       = findViewById(R.id.etUsername);
-        etEmail          = findViewById(R.id.etEmail);
-        etPassword       = findViewById(R.id.etPassword);
-        btnRegister      = findViewById(R.id.btnRegister);
-        ivTogglePassword = findViewById(R.id.ivTogglePassword);
-
-        ivTogglePassword.setOnClickListener(v -> {
+        // Password toggle
+        binding.ivTogglePassword.setOnClickListener(v -> {
             if (isPasswordVisible) {
-                etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                ivTogglePassword.setImageResource(android.R.drawable.ic_menu_view); // eye-slash icon
+                binding.etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 isPasswordVisible = false;
             } else {
-                etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                ivTogglePassword.setImageResource(android.R.drawable.ic_menu_view);
+                binding.etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
                 isPasswordVisible = true;
             }
-            // Keep cursor at the end of the text after toggling
-            etPassword.setSelection(etPassword.getText().length());
+            binding.etPassword.setSelection(binding.etPassword.getText().length());
         });
 
-        btnRegister.setOnClickListener(v -> attemptRegistration());
+        // Register button
+        binding.btnRegister.setOnClickListener(v -> attemptRegistration());
+
+        // "Log in" link — navigates to LoginActivity
+        binding.tvLogin.setOnClickListener(v -> {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
     }
 
-    /**
-     * Reads the form fields, validates them, then calls the backend.
-     */
+    @SuppressLint("SetTextI18n")
     private void attemptRegistration() {
-        // .getText().toString().trim() reads the text and removes leading/trailing spaces
-        String username = etUsername.getText().toString().trim();
-        String email    = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        String username = binding.etUsername.getText().toString().trim();
+        String email    = binding.etEmail.getText().toString().trim();
+        String password = binding.etPassword.getText().toString().trim();
 
+        // Client-side validation (instant feedback, no DB hit needed)
         if (username.isEmpty()) {
-            etUsername.setError("Username is required");
-            etUsername.requestFocus(); // Move cursor to this field
-            return; // Stop here, don't send request
+            binding.etUsername.setError("Username is required");
+            binding.etUsername.requestFocus();
+            return;
         }
         if (username.length() < 5 || username.length() > 20) {
-            etUsername.setError("Username must be between 5 and 20 characters");
-            etUsername.requestFocus();
+            binding.etUsername.setError("Username must be between 5 and 20 characters");
+            binding.etUsername.requestFocus();
             return;
         }
         if (email.isEmpty()) {
-            etEmail.setError("Email is required");
-            etEmail.requestFocus();
+            binding.etEmail.setError("Email is required");
+            binding.etEmail.requestFocus();
             return;
         }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Enter a valid email address");
-            etEmail.requestFocus();
+            binding.etEmail.setError("Enter a valid email address");
+            binding.etEmail.requestFocus();
             return;
         }
         if (password.isEmpty()) {
-            etPassword.setError("Password is required");
-            etPassword.requestFocus();
+            binding.etPassword.setError("Password is required");
+            binding.etPassword.requestFocus();
             return;
         }
         if (password.length() < 8 || password.length() > 30) {
-            etPassword.setError("Password must be between 8 and 30 characters");
-            etPassword.requestFocus();
+            binding.etPassword.setError("Password must be between 8 and 30 characters");
+            binding.etPassword.requestFocus();
             return;
         }
 
-        // All validation passed — disable button to prevent double-clicks
-        btnRegister.setEnabled(false);
-        btnRegister.setText("Registering...");
+        // Disable button while working
+        binding.btnRegister.setEnabled(false);
+        binding.btnRegister.setText("Registering...");
 
-        RegisterRequest requestBody = new RegisterRequest(username, email, password);
 
-        ApiService apiService = ApiClient.getInstance().create(ApiService.class);
-        Call<ResponseBody> call = apiService.registerUser(requestBody);
+        executor.execute(() -> {
+            try {
+                AppDatabase db = AppDatabase.getInstance(this);
 
-        // 4. .enqueue() sends the request on a BACKGROUND thread (never block the UI thread with network!)
-        //    and delivers the result back on the MAIN thread via the Callback
-        call.enqueue(new Callback<ResponseBody>() {
-
-            @Override
-            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
-
-                btnRegister.setEnabled(true);
-                btnRegister.setText("Register");
-
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String msg = response.body().string();
-
-                        Toast.makeText(RegisterActivity.this,
-                                msg,
-                                Toast.LENGTH_LONG).show();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(RegisterActivity.this,
-                            "Registration failed",
-                            Toast.LENGTH_LONG).show();
+                // Check if username is already taken
+                if (db.userDao().findByUsername(username) != null) {
+                    // runOnUiThread → go back to main thread to update UI
+                    runOnUiThread(() -> {
+                        binding.btnRegister.setEnabled(true);
+                        binding.btnRegister.setText("Register");
+                        binding.etUsername.setError("Username is already taken");
+                        binding.etUsername.requestFocus();
+                    });
+                    return;
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                btnRegister.setEnabled(true);
-                btnRegister.setText("Register");
+                // Check if email is already registered
+                if (db.userDao().findByEmail(email) != null) {
+                    runOnUiThread(() -> {
+                        binding.btnRegister.setEnabled(true);
+                        binding.btnRegister.setText("Register");
+                        binding.etEmail.setError("Email is already registered");
+                        binding.etEmail.requestFocus();
+                    });
+                    return;
+                }
 
-                Toast.makeText(RegisterActivity.this,
-                        "Network error: " + t.getMessage(),
-                        Toast.LENGTH_LONG).show();
+                // All clear — insert the new user
+                UserEntity newUser = new UserEntity(username, email, password);
+                db.userDao().insertUser(newUser);
+
+                // Success — update UI on main thread
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Registered successfully!", Toast.LENGTH_SHORT).show();
+                    // Navigate to LoginActivity
+                    startActivity(new Intent(this, LoginActivity.class));
+                    finish(); // Remove RegisterActivity from back stack
+                });
+
+            } catch (Exception e) {
+                // Unexpected DB error
+                runOnUiThread(() -> {
+                    binding.btnRegister.setEnabled(true);
+                    binding.btnRegister.setText("Register");
+                    Toast.makeText(this, "Something went wrong: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Shut down the executor when the activity is destroyed to avoid memory leaks
+        executor.shutdown();
+        binding = null;
     }
 }

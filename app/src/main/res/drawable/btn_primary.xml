@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    btn_primary.xml — The dark blue rounded Register button background.
-    Using a selector means Android can change the look when pressed.
-
-    WHERE: Place this in app/src/main/res/drawable/btn_primary.xml
--->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- When the button is being pressed (darker blue) -->
