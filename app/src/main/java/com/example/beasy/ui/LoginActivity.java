@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         // Login button
         binding.btnLogin.setOnClickListener(v -> attemptLogin());
 
-        // "Don't have an account? "Register" link
+        // "Don't have an account? Register" link
         binding.tvRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
             finish();
