@@ -1,46 +1,51 @@
-# Beasy Android App 
+# Beasy Android App
 
-Android application built with Java + XML that communicates with a [Spring Boot backend](https://github.com/Azgoh/Practice-API) using Retrofit.
-The app currently supports user registration with backend integration.
+Android application built with Java + XML for managing professional services.
+Users can register, log in, browse professional profiles, and book appointments.
 
-# Tech Stack
+## Tech Stack
 
 - Java
 - XML (Views)
-- Retrofit (HTTP client)
-- OkHttp (logging)
-- Gson (data handling)
+- Room (local SQLite database)
+- BCrypt (password hashing)
+- ViewBinding
 - Material Design components
 
-# Project Structure
+## Project Structure
 
 ```
-app/ 
-├── api/        → Retrofit setup (ApiClient, ApiService)
-├── model/      → Request/Response models
-├── ui/         → Activities (MainActivity, RegisterActivity)
-├── res/        → XML layouts, colors, drawables
+app/
+├── data/
+│   ├── entity/     → Room table definitions (UserEntity)
+│   ├── dao/        → Database queries (UserDao)
+│   └── AppDatabase.java  → Room database singleton
+├── ui/             → Activities (MainActivity, RegisterActivity, LoginActivity)
+├── res/
+│   ├── layout/     → XML layouts
+│   ├── drawable/   → Shapes, button styles
+│   └── values/     → Colors, strings
 ```
 
-# Backend Communication
+## Features
 
-The app uses Retrofit to communicate with the backend.
+- [x] User registration (saved to local Room database)
+- [x] User login (BCrypt password verification)
+- [ ] Home screen with professional profiles
+- [ ] Appointment booking
 
-## Base URL (Development)
+## How to Run
 
-` http://192.168.100.39:8080/ `
-> Replace with you local machine IP when running on a real device.
+1. Clone the repo
+2. Open in Android Studio
+3. Click **Run ▶**
 
-# How to Run
+No backend required — all data is stored locally using Room.
 
-## 1. Start backend
-Make sure Spring Boot is running on:
-`http://localhost:8080`
+## Resetting the Database
 
-## 2. Update base URL
+```bash
+adb shell pm clear com.example.beasy
+```
 
-Set your PC IP in: `ApiClient.java`
-
-## 3. Run Android app
-   - Connect device or emulator
-   - Press Run ▶
+Or simply uninstall and reinstall the app.
