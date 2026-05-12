@@ -15,7 +15,6 @@ import java.util.List;
 
 /**
  * BookingAdapter — drives the list of booked appointments in MyBookingsActivity.
- * WHERE: app/src/main/java/com/example/beasy/ui/adapter/BookingAdapter.java
  */
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
 
