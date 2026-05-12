@@ -1,4 +1,4 @@
-package com.example.beasy.data.entity;
+package com.example.beasy.data.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

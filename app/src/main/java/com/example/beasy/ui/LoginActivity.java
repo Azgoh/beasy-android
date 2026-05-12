@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.beasy.data.AppDatabase;
-import com.example.beasy.data.entity.UserEntity;
+import com.example.beasy.data.model.UserEntity;
 import com.example.beasy.databinding.ActivityLoginBinding;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -113,9 +113,8 @@ public class LoginActivity extends AppCompatActivity {
 
                 Toast.makeText(this, "Welcome back, " + matchedUser.username + "!", Toast.LENGTH_SHORT).show();
 
-                // TODO: Navigate to HomeActivity once built
-                // startActivity(new Intent(this, HomeActivity.class));
-                // finish();
+                 startActivity(new Intent(this, HomeActivity.class));
+                 finish();
             });
         });
     }

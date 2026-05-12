@@ -5,7 +5,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import com.example.beasy.data.entity.UserEntity;
+import com.example.beasy.data.model.UserEntity;
 
 @Dao
 public interface UserDao {

@@ -30,6 +30,7 @@
             android:name=".ui.LoginActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.HomeActivity" android:exported="false" />
     </application>
 
 </manifest>

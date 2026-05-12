@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.example.beasy.data.dao.UserDao;
-import com.example.beasy.data.entity.UserEntity;
+import com.example.beasy.data.model.UserEntity;
 
 @Database(
         entities = { UserEntity.class },

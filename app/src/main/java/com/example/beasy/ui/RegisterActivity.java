@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.beasy.data.AppDatabase;
-import com.example.beasy.data.entity.UserEntity;
+import com.example.beasy.data.model.UserEntity;
 import com.example.beasy.databinding.ActivityRegisterBinding;
 
 import org.mindrot.jbcrypt.BCrypt;
