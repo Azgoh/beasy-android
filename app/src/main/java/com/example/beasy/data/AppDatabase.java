@@ -6,34 +6,41 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.example.beasy.data.dao.AppointmentDao;
 import com.example.beasy.data.dao.UserDao;
+import com.example.beasy.data.model.Appointment;
 import com.example.beasy.data.model.UserEntity;
 
+/**
+ * AppDatabase — updated to version 2 with AppointmentEntity added.
+ *
+ * IMPORTANT: Every time you add/change an @Entity, you MUST increment the version number.
+ * We also add fallbackToDestructiveMigration() which wipes and recreates the DB
+ * on version change — fine for development, not for production.
+ */
 @Database(
-        entities = { UserEntity.class },
-        version = 1,
+        entities = { UserEntity.class, Appointment.class },
+        version  = 2,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
 
-    public abstract UserDao userDao();
+    public abstract UserDao        userDao();
+    public abstract AppointmentDao appointmentDao();
+
     private static volatile AppDatabase instance;
 
-    /**
-     * Get the database instance. Creates it if it doesn't exist yet.
-     *
-     * "volatile" + "synchronized" makes this thread-safe.
-     * Context is needed to know where to store the SQLite file on the device.
-     */
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (AppDatabase.class) {
                 if (instance == null) {
                     instance = Room.databaseBuilder(
-                            context.getApplicationContext(), // Always use app context, not activity
-                            AppDatabase.class,
-                            "beasy_database"                // The .db file name on disk
-                    ).build();
+                                    context.getApplicationContext(),
+                                    AppDatabase.class,
+                                    "beasy_database"
+                            )
+                            .fallbackToDestructiveMigration()
+                            .build();
                 }
             }
         }

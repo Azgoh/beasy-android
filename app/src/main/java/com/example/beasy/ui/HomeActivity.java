@@ -1,5 +1,6 @@
 package com.example.beasy.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.beasy.databinding.ActivityHomeBinding;
 import com.example.beasy.data.model.Category;
 import com.example.beasy.data.model.Professional;
+import com.example.beasy.repository.ProfessionalRepository;
 import com.example.beasy.ui.adapter.CategoryAdapter;
 import com.example.beasy.ui.adapter.ProfessionalAdapter;
 
@@ -36,9 +38,15 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
         SharedPreferences prefs = getSharedPreferences("beasy_prefs", MODE_PRIVATE);
         String username = prefs.getString("logged_in_username", "there");
         binding.tvGreeting.setText("Hi, " + username + " 👋");
+
+        binding.btnMyBookings.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, MyBookingsActivity.class);
+            startActivity(intent);
+        });
 
         setupData();
         setupCategories();
@@ -56,14 +64,10 @@ public class HomeActivity extends AppCompatActivity {
                 new Category("Gardening",  "🌿")
         );
 
-        allProfessionals = Arrays.asList(
-                new Professional("Master Sparky Electrics", "Electrical", 5.0f, 128, "Starts $85/hr"),
-                new Professional("Elite Flow Plumbing",     "Plumbing",   4.9f, 245, "Starts $95/hr"),
-                new Professional("CleanPro Services",       "Cleaning",   4.8f, 310, "Starts $60/hr"),
-                new Professional("ArcticAir HVAC",          "HVAC",       4.7f,  98, "Starts $110/hr"),
-                new Professional("ColorCraft Painting",     "Painting",   4.6f, 134, "Starts $70/hr"),
-                new Professional("GreenThumb Gardening",    "Gardening",  4.8f,  76, "Starts $55/hr")
-        );
+        // Load professionals from repository
+        allProfessionals = ProfessionalRepository
+                .getInstance()
+                .getAll();
     }
 
     private void setupCategories() {
@@ -78,7 +82,14 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupProfessionals() {
         professionalAdapter = new ProfessionalAdapter(allProfessionals, pro -> {
-            // TODO: navigate to ProfessionalDetailActivity
+            Intent intent = new Intent(HomeActivity.this, BookingActivity.class);
+
+            intent.putExtra(
+                    BookingActivity.EXTRA_PROFESSIONAL_NAME,
+                    pro.getName()
+            );
+
+            startActivity(intent);
         });
         binding.rvProfessionals.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

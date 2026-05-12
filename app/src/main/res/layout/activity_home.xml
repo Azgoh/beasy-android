@@ -22,9 +22,10 @@
                  ══════════════════════════ -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="72dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:paddingTop="16dp"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:background="@color/white"
@@ -47,10 +48,15 @@
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:id="@+id/btnMyBookings"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
                     android:src="@android:drawable/ic_menu_my_calendar"
-                    app:tint="@color/icon_grey" />
+                    app:tint="@color/primary_blue"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
             </LinearLayout>
 
             <!-- ══════════════════════════
